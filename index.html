@@ -80,35 +80,32 @@
     </div>
 
     <script>
-                class Boot extends Phaser.Scene {
+        // Definição das Classes do Jogo
+        class Boot extends Phaser.Scene {
             constructor() { super('Boot'); }
             preload() {
-                // CORREÇÃO: Removi o './' para evitar problemas de caminho relativo no GitHub Pages
-                // Certifique-se que a pasta no GitHub se chama "assets" (tudo minúsculo)
-                const imgPath = 'assets/';
-                const sndPath = 'assets/';
-        
+                // ATENÇÃO: No GitHub, os nomes das pastas e arquivos devem ser EXATOS.
+                // Se a pasta for "Assets" (maiúsculo), o código "assets" (minúsculo) vai falhar.
+                const imgPath = './assets/images/';
+                const sndPath = './assets/audio/';
+
+                // Carregamento de Imagens
                 this.load.image('menu_bg', imgPath + 'MenuBg.png');
                 this.load.image('solo_dupla_bg', imgPath + 'partida.png');
                 this.load.image('creditos_bg', imgPath + 'InfoBg.png');
                 this.load.image('ping_pong_bg', imgPath + 'PingPongBg.png');
-                
                 this.load.image('p1_left', imgPath + 'Player1Left.png');
                 this.load.image('p1_right', imgPath + 'Player1Right.png');
                 this.load.image('p1_shot', imgPath + 'Player1Shot.png');
-                
                 this.load.image('p2_left', imgPath + 'Player2Left.png');
                 this.load.image('p2_right', imgPath + 'Player2Right.png');
                 this.load.image('p2_shot', imgPath + 'Player2Shot.png');
-                
                 this.load.image('enemy', imgPath + 'Enemy1Left.png');
                 this.load.image('ball', imgPath + 'BallPingPong.png');
                 this.load.image('p1_pp', imgPath + 'Player1PingPong.png');
                 this.load.image('p2_pp', imgPath + 'Player2PingPong.png');
-        
-                // ÁUDIOS
-                // Verifique no GitHub se a extensão é .mp3 (minúsculo) ou .MP3 (maiúsculo)
-                // Se no GitHub estiver .MP3, mude aqui abaixo para .MP3
+
+                // Carregamento de Áudios
                 this.load.audio('menu_music', sndPath + 'Menu.mp3');
                 this.load.audio('solo_music', sndPath + 'partida_solo.mp3');
                 this.load.audio('duo_music', sndPath + 'partida_duo.mp3');
@@ -333,7 +330,3 @@
     </script>
 </body>
 </html>
-
-
-
-
