@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sadako's Curse - Web</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
+
+    <style>
+        body { 
+            margin: 0; 
+            background: #1a1a1a; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            overflow: hidden; 
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #game-wrapper {
+            position: relative;
+            border: 4px solid #6a0e00;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+        }
+
+        #controls-info {
+            display: flex;
+            justify-content: space-around;
+            width: 576px;
+            background: #000;
+            padding: 10px 0;
+            border-top: 2px solid #6a0e00;
+            font-size: 13px;
+        }
+
+        .player-box {
+            text-align: center;
+            padding: 5px;
+        }
+
+        .player-box strong { color: #f7d100; }
+
+        #footer-note {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-wrapper">
+        <div id="game-container"></div>
+        
+        <div id="controls-info">
+            <div class="player-box">
+                <strong>PLAYER 1 (BRANCO)</strong><br>
+                Movimento: Setas (↑ ↓ ← →)<br>
+                Atirar: ENTER
+            </div>
+            <div class="player-box">
+                <strong>PLAYER 2 (MARROM)</strong><br>
+                Movimento: W, A, S, D<br>
+                Atirar: ESPAÇO
+            </div>
+            <div class="player-box">
+                <strong>GERAL</strong><br>
+                Menu/Voltar: ESC<br>
+                Selecionar: ENTER
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-note">
+        Este jogo foi desenvolvido originalmente em 2024 como um trabalho acadêmico utilizando Pygame.
+    </div>
+
+    <script>
+        // Definição das Classes do Jogo
+        class Boot extends Phaser.Scene {
+            constructor() { super('Boot'); }
+            preload() {
+                // ATENÇÃO: No GitHub, os nomes das pastas e arquivos devem ser EXATOS.
+                // Se a pasta for "Assets" (maiúsculo), o código "assets" (minúsculo) vai falhar.
+                const imgPath = './assets/images/';
+                const sndPath = './assets/audio/';
+
+                // Carregamento de Imagens
+                this.load.image('menu_bg', imgPath + 'MenuBg.png');
+                this.load.image('solo_dupla_bg', imgPath + 'partida.png');
+                this.load.image('creditos_bg', imgPath + 'InfoBg.png');
+                this.load.image('ping_pong_bg', imgPath + 'PingPongBg.png');
+                this.load.image('p1_left', imgPath + 'Player1Left.png');
+                this.load.image('p1_right', imgPath + 'Player1Right.png');
+                this.load.image('p1_shot', imgPath + 'Player1Shot.png');
+                this.load.image('p2_left', imgPath + 'Player2Left.png');
+                this.load.image('p2_right', imgPath + 'Player2Right.png');
+                this.load.image('p2_shot', imgPath + 'Player2Shot.png');
+                this.load.image('enemy', imgPath + 'Enemy1Left.png');
+                this.load.image('ball', imgPath + 'BallPingPong.png');
+                this.load.image('p1_pp', imgPath + 'Player1PingPong.png');
+                this.load.image('p2_pp', imgPath + 'Player2PingPong.png');
+
+                // Carregamento de Áudios
+                this.load.audio('menu_music', sndPath + 'Menu.mp3');
+                this.load.audio('solo_music', sndPath + 'partida_solo.mp3');
+                this.load.audio('duo_music', sndPath + 'partida_duo.mp3');
+                this.load.audio('credits_music', sndPath + 'InfoBg.mp3');
+            }
+            create() { this.scene.start('MainMenu'); }
+        }
+
+        class MainMenu extends Phaser.Scene {
+            constructor() { super('MainMenu'); }
+            create() {
+                this.sound.stopAll();
+                this.sound.play('menu_music', { loop: true });
+                this.add.image(288, 162, 'menu_bg');
+                const titleStyle = { font: '70px "Lucida Sans Typewriter"', fill: '#6a0e00', stroke: '#000', strokeThickness: 5 };
+                this.add.text(288, 55, "Sadako's", titleStyle).setOrigin(0.5);
+                this.add.text(288, 110, "Curse", titleStyle).setOrigin(0.5);
+                const options = ["MODO SOLO (1P)", "MODO DUO (2P)", "MODO PING-PONG (2P)", "ALUNO", "SAIR"];
+                this.selected = 0;
+                this.txtObjs = options.map((txt, i) => this.add.text(288, 185 + (i * 30), txt, { font: '22px Arial', fill: '#fff' }).setOrigin(0.5));
+                this.input.keyboard.on('keydown-DOWN', () => { this.selected = (this.selected + 1) % options.length; this.updateMenu(); });
+                this.input.keyboard.on('keydown-UP', () => { this.selected = (this.selected - 1 + options.length) % options.length; this.updateMenu(); });
+                this.input.keyboard.on('keydown-ENTER', () => {
+                    if (this.selected === 0) this.scene.start('SoloMode');
+                    else if (this.selected === 1) this.scene.start('DuoMode');
+                    else if (this.selected === 2) this.scene.start('PingPongMode');
+                    else if (this.selected === 3) this.scene.start('Credits');
+                    else if (this.selected === 4) {
+                        // Nota: window.close() geralmente é bloqueado por navegadores modernos, mas mantive conforme solicitado.
+                        console.log("Tentando fechar janela...");
+                        window.close();
+                    }
+                });
+                this.updateMenu();
+            }
+            updateMenu() { this.txtObjs.forEach((obj, i) => obj.setStyle({ font: i === this.selected ? 'bold 30px Arial' : '22px Arial', fill: '#fff' })); }
+        }
+
+        function createShot(scene, player, texture, bulletsGroup) {
+            let offset = player.dir === 'right' ? 45 : -45;
+            let b = scene.physics.add.sprite(player.x + offset, player.y, texture);
+            bulletsGroup.add(b);
+            b.body.setAllowGravity(false);
+            b.body.setVelocityX(player.dir === 'right' ? 800 : -800);
+        }
+
+        class SoloMode extends Phaser.Scene {
+            constructor() { super('SoloMode'); }
+            create() {
+                this.isGameOver = false;
+                this.sound.stopAll();
+                this.sound.play('solo_music', { loop: true });
+                this.add.image(288, 162, 'solo_dupla_bg');
+                this.player = this.physics.add.sprite(50, 162, 'p1_right').setCollideWorldBounds(true);
+                this.player.dir = 'right';
+                this.player.lastShot = 0;
+                this.bullets = this.physics.add.group();
+                this.enemies = this.physics.add.group();
+                this.kills = 0;
+                this.timeLeft = 30;
+                this.killText = this.add.text(288, 50, `Mortes: 0/150`, { font: '20px Arial', fill: '#f7d100' }).setOrigin(0.5);
+                this.timeText = this.add.text(288, 20, `Tempo restante: 30 segundos`, { font: '20px Arial', fill: '#fff' }).setOrigin(0.5);
+                this.cursors = this.input.keyboard.createCursorKeys();
+                this.keyShoot = this.input.keyboard.addKey('ENTER');
+                this.keyEsc = this.input.keyboard.addKey('ESC');
+                this.time.addEvent({ delay: 1000, callback: () => { if(!this.isGameOver) this.timeLeft--; }, loop: true });
+                
+                this.time.addEvent({ delay: 100, callback: this.spawnEnemy, loop: true, callbackScope: this });
+
+                this.physics.add.overlap(this.bullets, this.enemies, (bullet, enemy) => {
+                    bullet.destroy(); enemy.destroy();
+                    this.kills++; this.killText.setText(`Mortes: ${this.kills}/150`);
+                });
+            }
+            update(time) {
+                if (this.isGameOver) return;
+                if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) this.scene.start('MainMenu');
+                if (this.kills >= 150) return this.endGame(`Perfeito! ${this.kills} sacrifícios realizados!`);
+                if (this.timeLeft <= 0) return this.endGame(`Tempo acabou! ${this.kills} inimigos derrotados.`);
+                this.player.setVelocity(0);
+                if (this.cursors.up.isDown) this.player.setVelocityY(-300); else if (this.cursors.down.isDown) this.player.setVelocityY(300);
+                if (this.cursors.left.isDown) { this.player.setVelocityX(-300); this.player.setTexture('p1_left'); this.player.dir = 'left'; }
+                else if (this.cursors.right.isDown) { this.player.setVelocityX(300); this.player.setTexture('p1_right'); this.player.dir = 'right'; }
+                
+                if (this.keyShoot.isDown && time > this.player.lastShot) {
+                    createShot(this, this.player, 'p1_shot', this.bullets);
+                    this.player.lastShot = time + 100;
+                }
+                this.timeText.setText(`Tempo restante: ${Math.max(0, this.timeLeft)} segundos`);
+                this.bullets.children.each(b => { if(b && (b.x < -50 || b.x > 630)) b.destroy(); });
+            }
+            spawnEnemy() {
+                if(this.isGameOver) return;
+                let e = this.enemies.create(Phaser.Math.Between(100, 500), Phaser.Math.Between(50, 270), 'enemy');
+                e.setCollideWorldBounds(true).setBounce(1).setVelocity(Phaser.Math.Between(-150, 150), Phaser.Math.Between(-150, 150));
+            }
+            endGame(msg) {
+                this.isGameOver = true; this.physics.pause();
+                this.add.text(288, 162, msg, { font: '28px Arial', fill: '#f7d100', align: 'center', wordWrap: { width: 500 } }).setOrigin(0.5);
+                this.time.delayedCall(2000, () => this.scene.start('MainMenu'));
+            }
+        }
+
+        class DuoMode extends Phaser.Scene {
+            constructor() { super('DuoMode'); }
+            create() {
+                this.isGameOver = false;
+                this.sound.stopAll();
+                this.sound.play('duo_music', { loop: true });
+                this.add.image(288, 162, 'solo_dupla_bg');
+                this.p1 = this.physics.add.sprite(50, 100, 'p1_right').setCollideWorldBounds(true);
+                this.p1.dir = 'right'; this.p1.lastShot = 0;
+                this.p2 = this.physics.add.sprite(50, 200, 'p2_right').setCollideWorldBounds(true);
+                this.p2.dir = 'right'; this.p2.lastShot = 0;
+                this.bullets = this.physics.add.group();
+                this.enemies = this.physics.add.group();
+                this.kills = 0; this.timeLeft = 30;
+                this.k1 = this.input.keyboard.createCursorKeys();
+                this.s1 = this.input.keyboard.addKey('ENTER');
+                this.k2 = this.input.keyboard.addKeys({up:'W', down:'S', left:'A', right:'D', shoot:'SPACE'});
+                this.keyEsc = this.input.keyboard.addKey('ESC');
+                this.killText = this.add.text(288, 50, `Mortes: 0/250`, { font: '20px Arial', fill: '#f7d100' }).setOrigin(0.5);
+                this.timeText = this.add.text(288, 20, `Tempo restante: 30 segundos`, { font: '20px Arial', fill: '#fff' }).setOrigin(0.5);
+                this.time.addEvent({ delay: 1000, callback: () => { if(!this.isGameOver) this.timeLeft--; }, loop: true });
+                
+                this.time.addEvent({ delay: 80, callback: this.spawnEnemy, loop: true, callbackScope: this });
+
+                this.physics.add.overlap(this.bullets, this.enemies, (bullet, enemy) => {
+                    bullet.destroy(); enemy.destroy();
+                    this.kills++; this.killText.setText(`Mortes: ${this.kills}/250`);
+                });
+            }
+            update(time) {
+                if (this.isGameOver) return;
+                if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) this.scene.start('MainMenu');
+                if (this.kills >= 250) return this.endGame(`Perfeito! ${this.kills} sacrifícios realizados!`);
+                if (this.timeLeft <= 0) return this.endGame(`Tempo acabou! ${this.kills} inimigos derrotados.`);
+                this.handleMove(this.p1, this.k1, this.s1, 'p1_left', 'p1_right', 'p1_shot', time);
+                this.handleMove(this.p2, {up:this.k2.up, down:this.k2.down, left:this.k2.left, right:this.k2.right}, this.k2.shoot, 'p2_left', 'p2_right', 'p2_shot', time);
+                this.timeText.setText(`Tempo restante: ${Math.max(0, this.timeLeft)} segundos`);
+                this.bullets.children.each(b => { if(b && (b.x < -50 || b.x > 630)) b.destroy(); });
+            }
+            handleMove(p, k, s, tL, tR, sImg, time) {
+                p.setVelocity(0);
+                if(k.up.isDown) p.setVelocityY(-300); else if(k.down.isDown) p.setVelocityY(300);
+                if(k.left.isDown) { p.setVelocityX(-300); p.setTexture(tL); p.dir='left'; } 
+                else if(k.right.isDown) { p.setVelocityX(300); p.setTexture(tR); p.dir='right'; }
+                if(s.isDown && time > p.lastShot) {
+                    createShot(this, p, sImg, this.bullets);
+                    p.lastShot = time + 100;
+                }
+            }
+            spawnEnemy() {
+                if(this.isGameOver) return;
+                let e = this.enemies.create(Phaser.Math.Between(100, 500), Phaser.Math.Between(50, 270), 'enemy');
+                e.setCollideWorldBounds(true).setBounce(1).setVelocity(Phaser.Math.Between(-150, 150), Phaser.Math.Between(-150, 150));
+            }
+            endGame(msg) {
+                this.isGameOver = true; this.physics.pause();
+                this.add.text(288, 162, msg, { font: '28px Arial', fill: '#f7d100', align: 'center', wordWrap: { width: 500 } }).setOrigin(0.5);
+                this.time.delayedCall(2000, () => this.scene.start('MainMenu'));
+            }
+        }
+
+        class PingPongMode extends Phaser.Scene {
+            constructor() { super('PingPongMode'); }
+            create() {
+                this.sound.stopAll();
+                this.sound.play('duo_music', { loop: true });
+                this.add.image(288, 162, 'ping_pong_bg');
+                this.p1 = this.physics.add.sprite(30, 162, 'p1_pp').setImmovable(true).setCollideWorldBounds(true);
+                this.p2 = this.physics.add.sprite(540, 162, 'p2_pp').setImmovable(true).setCollideWorldBounds(true);
+                this.ball = this.physics.add.sprite(288, 162, 'ball').setBounce(1).setCollideWorldBounds(true);
+                this.physics.world.setBoundsCollision(false, false, true, true);
+                this.ball.setVelocity(250, 250);
+                this.score = [0, 0];
+                this.scoreTxt = this.add.text(288, 20, "0 - 0", { font: '30px Arial', fill: '#fff' }).setOrigin(0.5);
+                this.physics.add.collider(this.ball, [this.p1, this.p2]);
+                this.k1 = this.input.keyboard.addKeys({up:'W', down:'S'});
+                this.k2 = this.input.keyboard.createCursorKeys();
+                this.keyEsc = this.input.keyboard.addKey('ESC');
+            }
+            update() {
+                if (Phaser.Input.Keyboard.JustDown(this.keyEsc)) this.scene.start('MainMenu');
+                this.p1.setVelocityY(this.k1.up.isDown ? -300 : this.k1.down.isDown ? 300 : 0);
+                this.p2.setVelocityY(this.k2.up.isDown ? -300 : this.k2.down.isDown ? 300 : 0);
+                if (this.ball.x < 0) { this.ball.setPosition(288, 162); this.resetBall(1); }
+                else if (this.ball.x > 576) { this.ball.setPosition(288, 162); this.resetBall(0); }
+            }
+            resetBall(winner) {
+                this.score[winner]++;
+                this.scoreTxt.setText(`${this.score[0]} - ${this.score[1]}`);
+                if(this.score[0] >= 3 || this.score[1] >= 3) {
+                    let v = this.score[0] >= 3 ? "O JOGADOR 1" : "O JOGADOR 2";
+                    this.add.text(288, 162, `${v} VENCEU!`, { font: '40px Arial', fill: '#fff' }).setOrigin(0.5);
+                    this.ball.setVelocity(0,0); this.physics.pause();
+                    this.time.delayedCall(2000, () => this.scene.start('MainMenu'));
+                } else { this.ball.setVelocity(winner === 0 ? 250 : -250, 200); }
+            }
+        }
+
+        class Credits extends Phaser.Scene {
+            constructor() { super('Credits'); }
+            create() {
+                this.sound.stopAll();
+                this.sound.play('credits_music', { loop: true });
+                this.add.image(288, 162, 'creditos_bg');
+                this.add.text(288, 120, "Nathan Albuquerque", { font: '36px Arial', fill: '#fff' }).setOrigin(0.5);
+                this.add.text(288, 250, "Pressione ESC para voltar!", { font: '30px Arial', fill: '#f7d100' }).setOrigin(0.5);
+                this.input.keyboard.on('keydown-ESC', () => this.scene.start('MainMenu'));
+            }
+        }
+
+        const config = {
+            type: Phaser.AUTO, width: 576, height: 324, parent: 'game-container',
+            physics: { default: 'arcade', arcade: { debug: false } },
+            scene: [Boot, MainMenu, SoloMode, DuoMode, PingPongMode, Credits]
+        };
+        
+        // Inicia o jogo
+        new Phaser.Game(config);
+    </script>
+</body>
+</html>
