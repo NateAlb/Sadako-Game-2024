@@ -80,43 +80,56 @@
     </div>
 
     <script>
-        // Definição das Classes do Jogo
         class Boot extends Phaser.Scene {
-            constructor() { super('Boot'); }
-            preload() {
-                // ATENÇÃO: No GitHub, os nomes das pastas e arquivos devem ser EXATOS.
-                // Se a pasta for "Assets" (maiúsculo), o código "assets" (minúsculo) vai falhar.
-                const imgPath = './assets/images/';
-                const sndPath = './assets/audio/';
+    constructor() { super('Boot'); }
+    preload() {
+        // Use caminhos sem o "./" inicial para evitar problemas em subpastas do GitHub
+        const imgPath = 'assets/images/';
+        const sndPath = 'assets/audio/';
 
-                // Carregamento de Imagens
-                this.load.image('menu_bg', imgPath + 'MenuBg.png');
-                this.load.image('solo_dupla_bg', imgPath + 'partida.png');
-                this.load.image('creditos_bg', imgPath + 'InfoBg.png');
-                this.load.image('ping_pong_bg', imgPath + 'PingPongBg.png');
-                this.load.image('p1_left', imgPath + 'Player1Left.png');
-                this.load.image('p1_right', imgPath + 'Player1Right.png');
-                this.load.image('p1_shot', imgPath + 'Player1Shot.png');
-                this.load.image('p2_left', imgPath + 'Player2Left.png');
-                this.load.image('p2_right', imgPath + 'Player2Right.png');
-                this.load.image('p2_shot', imgPath + 'Player2Shot.png');
-                this.load.image('enemy', imgPath + 'Enemy1Left.png');
-                this.load.image('ball', imgPath + 'BallPingPong.png');
-                this.load.image('p1_pp', imgPath + 'Player1PingPong.png');
-                this.load.image('p2_pp', imgPath + 'Player2PingPong.png');
+        // Imagens
+        this.load.image('menu_bg', imgPath + 'MenuBg.png');
+        this.load.image('solo_dupla_bg', imgPath + 'partida.png');
+        this.load.image('creditos_bg', imgPath + 'InfoBg.png');
+        this.load.image('ping_pong_bg', imgPath + 'PingPongBg.png');
+        this.load.image('p1_left', imgPath + 'Player1Left.png');
+        this.load.image('p1_right', imgPath + 'Player1Right.png');
+        this.load.image('p1_shot', imgPath + 'Player1Shot.png');
+        this.load.image('p2_left', imgPath + 'Player2Left.png');
+        this.load.image('p2_right', imgPath + 'Player2Right.png');
+        this.load.image('p2_shot', imgPath + 'Player2Shot.png');
+        this.load.image('enemy', imgPath + 'Enemy1Left.png');
+        this.load.image('ball', imgPath + 'BallPingPong.png');
+        this.load.image('p1_pp', imgPath + 'Player1PingPong.png');
+        this.load.image('p2_pp', imgPath + 'Player2PingPong.png');
 
-                // Carregamento de Áudios
-                this.load.audio('menu_music', sndPath + 'Menu.mp3');
-                this.load.audio('solo_music', sndPath + 'partida_solo.mp3');
-                this.load.audio('duo_music', sndPath + 'partida_duo.mp3');
-                this.load.audio('credits_music', sndPath + 'InfoBg.mp3');
-            }
-            create() { this.scene.start('MainMenu'); }
+        // Áudios
+        this.load.audio('menu_music', sndPath + 'Menu.mp3');
+        this.load.audio('solo_music', sndPath + 'partida_solo.mp3');
+        this.load.audio('duo_music', sndPath + 'partida_duo.mp3');
+        this.load.audio('credits_music', sndPath + 'InfoBg.mp3');
+        
+        // Log para ajudar a debugar se algo falhar
+        this.load.on('loaderror', (fileObj) => {
+            console.warn('Erro ao carregar:', fileObj.key, fileObj.src);
+        });
+    }
+    create() { this.scene.start('MainMenu'); }
+}
+
+class MainMenu extends Phaser.Scene {
+    constructor() { super('MainMenu'); }
+    create() {
+        this.sound.stopAll();
+        
+        // TRAVA DE SEGURANÇA: Só toca se o arquivo existir no cache
+        if (this.cache.audio.exists('menu_music')) {
+            this.sound.play('menu_music', { loop: true });
+        } else {
+            console.error("Música 'menu_music' não foi encontrada. Verifique se o nome do arquivo no GitHub é Menu.mp3 (com M maiúsculo)");
         }
 
-        class MainMenu extends Phaser.Scene {
-            constructor() { super('MainMenu'); }
-            create() {
+        this.add.image(288, 162, 'menu_bg');
                 this.sound.stopAll();
                 this.sound.play('menu_music', { loop: true });
                 this.add.image(288, 162, 'menu_bg');
@@ -329,4 +342,5 @@
         new Phaser.Game(config);
     </script>
 </body>
+
 </html>
