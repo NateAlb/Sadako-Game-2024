@@ -86,30 +86,29 @@
             preload() {
                 // ATENÇÃO: No GitHub, os nomes das pastas e arquivos devem ser EXATOS.
                 // Se a pasta for "Assets" (maiúsculo), o código "assets" (minúsculo) vai falhar.
-                const imgPath = './assets/';
-                const sndPath = './assets/';
+                const pasta = './assets/';
 
                 // Carregamento de Imagens
-                this.load.image('menu_bg', imgPath + 'MenuBg.png');
-                this.load.image('solo_dupla_bg', imgPath + 'partida.png');
-                this.load.image('creditos_bg', imgPath + 'InfoBg.png');
-                this.load.image('ping_pong_bg', imgPath + 'PingPongBg.png');
-                this.load.image('p1_left', imgPath + 'Player1Left.png');
-                this.load.image('p1_right', imgPath + 'Player1Right.png');
-                this.load.image('p1_shot', imgPath + 'Player1Shot.png');
-                this.load.image('p2_left', imgPath + 'Player2Left.png');
-                this.load.image('p2_right', imgPath + 'Player2Right.png');
-                this.load.image('p2_shot', imgPath + 'Player2Shot.png');
-                this.load.image('enemy', imgPath + 'Enemy1Left.png');
-                this.load.image('ball', imgPath + 'BallPingPong.png');
-                this.load.image('p1_pp', imgPath + 'Player1PingPong.png');
-                this.load.image('p2_pp', imgPath + 'Player2PingPong.png');
+                this.load.image('menu_bg', pasta + 'MenuBg.png');
+                this.load.image('solo_dupla_bg', pasta + 'partida.png');
+                this.load.image('creditos_bg', pasta + 'InfoBg.png');
+                this.load.image('ping_pong_bg', pasta + 'PingPongBg.png');
+                this.load.image('p1_left', pasta + 'Player1Left.png');
+                this.load.image('p1_right', pasta + 'Player1Right.png');
+                this.load.image('p1_shot', pasta + 'Player1Shot.png');
+                this.load.image('p2_left', pasta + 'Player2Left.png');
+                this.load.image('p2_right', pasta + 'Player2Right.png');
+                this.load.image('p2_shot', pasta + 'Player2Shot.png');
+                this.load.image('enemy', pasta + 'Enemy1Left.png');
+                this.load.image('ball', pasta + 'BallPingPong.png');
+                this.load.image('p1_pp', pasta + 'Player1PingPong.png');
+                this.load.image('p2_pp', pasta + 'Player2PingPong.png');
 
                 // Carregamento de Áudios
-                this.load.audio('menu_music', sndPath + 'Menu.mp3');
-                this.load.audio('solo_music', sndPath + 'partida_solo.mp3');
-                this.load.audio('duo_music', sndPath + 'partida_duo.mp3');
-                this.load.audio('credits_music', sndPath + 'InfoBg.mp3');
+                this.load.audio('menu_music', pasta + 'Menu.mp3');
+                this.load.audio('solo_music', pasta + 'partida_solo.mp3');
+                this.load.audio('duo_music', pasta + 'partida_duo.mp3');
+                this.load.audio('credits_music', pasta + 'InfoBg.mp3');
             }
             create() { this.scene.start('MainMenu'); }
         }
@@ -350,3 +349,4 @@
     </script>
 </body>
 </html>
+
