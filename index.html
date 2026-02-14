@@ -118,7 +118,11 @@
             constructor() { super('MainMenu'); }
             create() {
                 this.sound.stopAll();
-                this.sound.play('menu_music', { loop: true });
+                // Correção de Bug: Verifica se o áudio carregou antes de tentar tocar
+                try {
+                    this.sound.play('menu_music', { loop: true });
+                } catch (e) { console.log('Áudio menu_music não carregou ou foi bloqueado.'); }
+
                 this.add.image(288, 162, 'menu_bg');
                 const titleStyle = { font: '70px "Lucida Sans Typewriter"', fill: '#6a0e00', stroke: '#000', strokeThickness: 5 };
                 this.add.text(288, 55, "Sadako's", titleStyle).setOrigin(0.5);
@@ -157,7 +161,11 @@
             create() {
                 this.isGameOver = false;
                 this.sound.stopAll();
-                this.sound.play('solo_music', { loop: true });
+                // Correção de Bug
+                try {
+                    this.sound.play('solo_music', { loop: true });
+                } catch (e) { console.log('Áudio solo_music não carregou.'); }
+
                 this.add.image(288, 162, 'solo_dupla_bg');
                 this.player = this.physics.add.sprite(50, 162, 'p1_right').setCollideWorldBounds(true);
                 this.player.dir = 'right';
@@ -214,7 +222,11 @@
             create() {
                 this.isGameOver = false;
                 this.sound.stopAll();
-                this.sound.play('duo_music', { loop: true });
+                // Correção de Bug
+                try {
+                    this.sound.play('duo_music', { loop: true });
+                } catch (e) { console.log('Áudio duo_music não carregou.'); }
+
                 this.add.image(288, 162, 'solo_dupla_bg');
                 this.p1 = this.physics.add.sprite(50, 100, 'p1_right').setCollideWorldBounds(true);
                 this.p1.dir = 'right'; this.p1.lastShot = 0;
@@ -274,7 +286,11 @@
             constructor() { super('PingPongMode'); }
             create() {
                 this.sound.stopAll();
-                this.sound.play('duo_music', { loop: true });
+                // Correção de Bug
+                try {
+                    this.sound.play('duo_music', { loop: true });
+                } catch (e) { console.log('Áudio duo_music não carregou.'); }
+
                 this.add.image(288, 162, 'ping_pong_bg');
                 this.p1 = this.physics.add.sprite(30, 162, 'p1_pp').setImmovable(true).setCollideWorldBounds(true);
                 this.p2 = this.physics.add.sprite(540, 162, 'p2_pp').setImmovable(true).setCollideWorldBounds(true);
@@ -311,7 +327,11 @@
             constructor() { super('Credits'); }
             create() {
                 this.sound.stopAll();
-                this.sound.play('credits_music', { loop: true });
+                // Correção de Bug
+                try {
+                    this.sound.play('credits_music', { loop: true });
+                } catch (e) { console.log('Áudio credits_music não carregou.'); }
+
                 this.add.image(288, 162, 'creditos_bg');
                 this.add.text(288, 120, "Nathan Albuquerque", { font: '36px Arial', fill: '#fff' }).setOrigin(0.5);
                 this.add.text(288, 250, "Pressione ESC para voltar!", { font: '30px Arial', fill: '#f7d100' }).setOrigin(0.5);
@@ -330,4 +350,3 @@
     </script>
 </body>
 </html>
-
